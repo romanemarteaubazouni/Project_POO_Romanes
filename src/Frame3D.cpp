@@ -1,4 +1,6 @@
 #include "Frame3D.hpp"
+#include <cmath>
+#include <vector>
 
 void Frame3D::display() const {
     for (const auto& v : vectors) {
@@ -17,7 +19,6 @@ Frame3D &Frame3D::operator=(const Frame3D &f){
 	if(&f == this) return *this;
 
 	vectors = f.vectors;
-
 	return *this;
 }
 
@@ -27,4 +28,38 @@ size_t Frame3D::size() const{
 
 void Frame3D::add(std::vector<double> &v) {
     vectors.push_back(v);
+}
+
+Frame3D Frame3D::operator+(const Frame3D &f) const {
+    Frame3D result;
+    result.vectors = vectors;
+    for (const auto &v : f.vectors) {
+        result.vectors.push_back(v);
+    }
+    return result;
+}
+
+double Frame3D::quality_measure(const std::vector<double> &v) {
+    double max{};
+    for (const auto &d : vectors) {
+        double prod_scalaire{};
+        double norm_v{};
+        double norm_d{};
+        double quality{};
+
+        for (size_t i{}; i < d.size(); i++) {
+            prod_scalaire += v[i]*d[i];
+            norm_v += v[i]*v[i];
+            norm_d += d[i]*d[i];
+        }
+        norm_d = sqrt(norm_d);
+        norm_v = sqrt(norm_v);
+
+        quality = prod_scalaire / (norm_d * norm_v);
+
+        if (quality > max) {
+            max = quality;
+        }
+    }
+    return max;
 }

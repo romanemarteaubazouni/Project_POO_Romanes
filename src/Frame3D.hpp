@@ -10,6 +10,8 @@ class Frame3D {
         std::vector<std::vector<double>> vectors;
 
     public:
+        // Constructeur par défaut (exo 1, Q e)
+        Frame3D() = default;
         // Pour faciliter l'affichage
         void display() const;
 
@@ -26,4 +28,11 @@ class Frame3D {
 
         // Exo 1, Q d
         void add(std::vector<double> &v);
+
+        //Exo 1, Q e
+        // Overloaded + operator
+        Frame3D operator+(const Frame3D &f) const;
+
+        // Exo 1, Q f
+        double quality_measure(const std::vector<double> &v);
 };
