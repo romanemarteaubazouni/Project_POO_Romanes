@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.15)
 project(POO_Romanes LANGUAGES C CXX)
 
 # file to comile
-add_executable(main src/main.cpp)
+add_executable(main src/main.cpp src/Frame3D.cpp src/Frame3D.hpp)
 
 # compilation options
 target_compile_features(main PRIVATE cxx_std_17) 
