@@ -35,4 +35,5 @@ class Frame3D {
 
         // Exo 1, Q f
         double quality_measure(const std::vector<double> &v);
+        double quality_measure_normalized(const std::vector<double> &v);
 };

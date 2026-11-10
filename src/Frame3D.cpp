@@ -1,6 +1,7 @@
 #include "Frame3D.hpp"
 #include <cmath>
 #include <vector>
+#include <cassert>
 
 void Frame3D::display() const {
     for (const auto& v : vectors) {
@@ -27,6 +28,8 @@ size_t Frame3D::size() const{
 }
 
 void Frame3D::add(std::vector<double> &v) {
+    assert(v.size() > 0.0);
+
     vectors.push_back(v);
 }
 
@@ -54,7 +57,9 @@ double Frame3D::quality_measure(const std::vector<double> &v) {
         }
         norm_d = sqrt(norm_d);
         norm_v = sqrt(norm_v);
-
+        
+        assert(norm_v > 0.0);
+        
         quality = prod_scalaire / (norm_d * norm_v);
 
         if (quality > max) {
@@ -62,4 +67,13 @@ double Frame3D::quality_measure(const std::vector<double> &v) {
         }
     }
     return max;
+}
+
+double Frame3D::quality_measure_normalized(const std::vector<double> &v) {
+    assert(vectors.size() > 0);
+    
+    double q = quality_measure(v);
+    q /= static_cast<double>(vectors.size());
+
+    return q;
 }
