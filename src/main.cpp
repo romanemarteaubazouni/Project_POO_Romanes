@@ -2,6 +2,7 @@
 #include <vector>
 #include <cmath>
 #include "Frame3D.hpp"
+#include "Frame.hpp"
 
 int main() {
     double s = 1.0 / std::sqrt(3.0);
