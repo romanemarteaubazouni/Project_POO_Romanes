@@ -9,14 +9,6 @@ class Frame {
         std::vector<std::vector<T>> vectors;
 
     public:
-        // A modifier :
-        // void display() const {
-        //     for (const auto& v : vectors) {
-        //         std::cout << "(" << v[0] << ", "
-        //             << v[1] << ", "
-        //             << v[2] << ")" << std::endl;
-        //     }
-        // }
 
         Frame() = default;
 
@@ -36,54 +28,84 @@ class Frame {
             return vectors.size();
         }
 
-        void add(std::vector<double> &v) {
+        void add(const std::vector<T> &v) {
             assert(v.size() == n);
+            T norm_squared{};
+            for (const auto &x : v) {
+                norm_squared += x * x;
+            }
+
+            assert(norm_squared > 0);
 
             vectors.push_back(v);
         }
-        // A modifier :
-        // Frame operator+(const Frame &f) const {
-        //     Frame result;
-        //     result.vectors = vectors;
-        //     for (const auto &v : f.vectors) {
-        //         result.vectors.push_back(v);
-        //     }
-        //     return result;
-        // }
 
-        // double quality_measure(const std::vector<double> &v) {
-        //     double max{};
-        //     for (const auto &d : vectors) {
-        //         double prod_scalaire{};
-        //         double norm_v{};
-        //         double norm_d{};
-        //         double quality{};
+        //addition de 2 frames 
+        Frame operator+(const Frame &f) const {
 
-        //         for (size_t i{}; i < d.size(); i++) {
-        //             prod_scalaire += v[i]*d[i];
-        //             norm_v += v[i]*v[i];
-        //             norm_d += d[i]*d[i];
-        //         }
-        //         norm_d = sqrt(norm_d);
-        //         norm_v = sqrt(norm_v);
-                
-        //         assert(norm_v > 0.0);
-                
-        //         quality = prod_scalaire / (norm_d * norm_v);
+            Frame result;
 
-        //         if (quality > max) {
-        //             max = quality;
-        //         }
-        //     }
-        //     return max;
-        // }
+            result.vectors = vectors;
 
-        // double quality_measure_normalized(const std::vector<double> &v) {
-        //     assert(vectors.size() > 0);
+            for (const auto &v : f.vectors) {
+                result.vectors.push_back(v);
+            }
+
+            return result;
+        }
+
+        // Calcul qualitée
+        double quality_measure(const std::vector<T> &v) const {
+
+            assert(v.size() == n);
+            assert(!vectors.empty());
+
+            double norm_v{};
             
-        //     double q = quality_measure(v);
-        //     q /= static_cast<double>(vectors.size());
+            for (const auto &x : v) {
+                norm_v +=static_cast<double>(x) * x;
+            }
 
-        //     return q;
-        // }
+            assert(norm_v >0.0);
+
+            norm_v =std::sqrt(norm_v);
+
+            double max =-1.0;
+
+            for (const auto &d : vectors) {
+
+                double prod_scalaire{};
+                double norm_d{};
+
+                for (int i =0;i<n;i++) {
+
+                    prod_scalaire +=static_cast<double>(v[i]) * d[i];
+
+                    norm_d +=static_cast<double>(d[i])*d[i];
+                }
+
+                norm_d = std::sqrt(norm_d);
+
+                double quality = prod_scalaire /(norm_d * norm_v);
+
+                if (quality > max) {
+                    max = quality;
+                }
+            }
+
+            return max;
+        }
+
+        // Calcul qualitée normalisée
+        double quality_measure_normalized(const std::vector<T> &v) const {
+
+            assert(!vectors.empty());
+            
+
+            double q = quality_measure(v);
+
+            q /= static_cast<double>(vectors.size());
+
+            return q;
+        }
 };
