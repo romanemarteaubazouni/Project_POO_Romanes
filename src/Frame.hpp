@@ -1,6 +1,16 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <exception>
+#include <string>
+#include <cassert>
+
+class AddFrameException : public std::exception {
+    public:
+        virtual const char* what() const noexcept {
+            return "Erreur : La taille du vecteur ne correspond pas à la dimension n";
+        }
+};
 
 template <typename T, int n>
 class Frame {
@@ -38,7 +48,9 @@ class Frame {
         }
 
         void add(const std::vector<T> &v) {
-            assert(v.size() == n);
+            if (v.size() != n) {
+                throw AddFrameException();
+            }
 
             T norm_squared{};
             for (const auto &x : v) {
