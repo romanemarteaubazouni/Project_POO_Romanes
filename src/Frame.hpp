@@ -13,6 +13,21 @@ class AddFrameException : public std::exception {
 };
 
 template <typename T, int n>
+class MinimalFrame : public Frame<T,n> { // ":public... to inherit"
+    public:
+        // Constructeur par défaut
+        MinimalFrame() = default;
+
+        MinimalFrame(const Frame<T,n> &f) {
+            // globalement ce que ça doit faire :
+            // regarder tous les élements de vectors
+            // regarder si il est déjà présent dans MinimalFrame (this)
+            // si il existe déjà, on passe à autre chose
+            // sinon, on l'ajouter
+        }
+};
+
+template <typename T, int n>
 class Frame {
     private:
         std::vector<std::vector<T>> vectors;
