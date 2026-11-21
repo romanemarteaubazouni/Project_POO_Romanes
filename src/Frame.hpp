@@ -76,15 +76,18 @@ class MinimalFrame : public Frame<T,n> { // ":public... to inherit"
         MinimalFrame() = default;
 
         MinimalFrame(const Frame<T,n> &f) {
+            // On parcourt les vecteurs de la frame
             for (const auto &f_v : f.get_vectors()) {
                 bool already_here = false;
-
+                // On regarde si il existe dans notre frame (this)
                 for (const auto &this_v : this->get_vectors()) {
+                    // Si oui, on l'ajoute pas
                     if (this_v == f_v) {
                         already_here = true;
                         break;
                     }
                 }
+                // Si non, on l'ajoute
                 if (!already_here)
                     this->add(f_v);
             }
