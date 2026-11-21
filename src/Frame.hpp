@@ -11,19 +11,56 @@
 void turn_primitive(std::vector<int>& v) {
     if (!v.empty()) {
         // On cherche le PGCD global
-        int overall_gcd{};
-        for (int& x : v) {
-            overall_gcd = std::gcd(overall_gcd, x);
+        int gcd{};
+        for (int x : v) {
+            gcd = std::gcd(gcd, x);
         }
         // Une fois qu'on a le PGCD, on divise tous les nombres par la PGCD
-        if (overall_gcd > 1) {
-            for (int x : v) {
-                x /= overall_gcd;
+        if (gcd > 1) {
+            for (int &x : v) {
+                x /= gcd;
             }
         }
     }
     return;
 }
+
+class AddPrimitiveFrameException : public std::exception {
+    public:
+        virtual const char* what() const noexcept {
+            return "Erreur : Une des valeurs du vecteur est trop grand";
+        }
+};
+
+template <typename T, int n>
+class PrimitiveFrame : public Frame<int,n> { // ":public... to inherit"
+    private:
+        int val_max{};
+    public:
+        // Constructeur par défaut
+        PrimitiveFrame() = default;
+        // Constructeur avec val_max (part 3 q d)
+        PrimitiveFrame(int max_val) : val_max(max_val) {
+        }
+
+        PrimitiveFrame(const Frame<int,n> &frame) {
+            for (auto f : frame) {
+                turn_primitive(f);
+                this->add(f);
+            }
+        }
+
+        void add(std::vector<int> v) {
+            for (int &i : v) {
+                if (std::abs(i) > val_max) {
+                    throw AddPrimitiveFrameException();
+                }
+            }
+
+            turn_primitive(v);
+            Frame<int, n>::add(v);
+        }
+};
 
 class AddFrameException : public std::exception {
     public:
