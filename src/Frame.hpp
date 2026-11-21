@@ -19,20 +19,18 @@ class MinimalFrame : public Frame<T,n> { // ":public... to inherit"
         MinimalFrame() = default;
 
         MinimalFrame(const Frame<T,n> &f) {
-            // code à vérifier
-            for (const auto &f_v : f.vectors) {
-                for (const auto &this_v : this->vectors) {
+            for (const auto &f_v : f.get_vectors()) {
+                bool already_here = false;
+
+                for (const auto &this_v : this->get_vectors()) {
                     if (this_v == f_v) {
+                        already_here = true;
                         break;
                     }
                 }
-                this->vectors.add(f_v);
+                if (!already_here)
+                    this->add(f_v);
             }
-            // globalement ce que ça doit faire :
-            // regarder tous les élements de vectors
-            // regarder si il est déjà présent dans MinimalFrame (this)
-            // si il existe déjà, on passe à autre chose
-            // sinon, on l'ajouter
         }
 };
 
@@ -57,6 +55,11 @@ class Frame {
                 }
                 std::cout << ")" << std::endl;
             }
+        }
+
+        // Getter pour permettre à minimalFrame de lire les vecteurs
+        std::vector<std::vector<T>>& get_vectors() const {
+            return vectors;
         }
 
         // Affectation operator
