@@ -4,6 +4,26 @@
 #include <exception>
 #include <string>
 #include <cassert>
+#include <algorithm>
+#include <numeric>
+
+// Part 3, Q a
+void turn_primitive(std::vector<int>& v) {
+    if (!v.empty()) {
+        // On cherche le PGCD global
+        int overall_gcd{};
+        for (int& x : v) {
+            overall_gcd = std::gcd(overall_gcd, x);
+        }
+        // Une fois qu'on a le PGCD, on divise tous les nombres par la PGCD
+        if (overall_gcd > 1) {
+            for (int x : v) {
+                x /= overall_gcd;
+            }
+        }
+    }
+    return;
+}
 
 class AddFrameException : public std::exception {
     public:
