@@ -7,90 +7,10 @@
 #include <algorithm>
 #include <numeric>
 
-// Part 3, Q a
-void turn_primitive(std::vector<int>& v) {
-    if (!v.empty()) {
-        // On cherche le PGCD global
-        int gcd{};
-        for (int x : v) {
-            gcd = std::gcd(gcd, x);
-        }
-        // Une fois qu'on a le PGCD, on divise tous les nombres par la PGCD
-        if (gcd > 1) {
-            for (int &x : v) {
-                x /= gcd;
-            }
-        }
-    }
-    return;
-}
-
-class AddPrimitiveFrameException : public std::exception {
-    public:
-        virtual const char* what() const noexcept {
-            return "Erreur : Une des valeurs du vecteur est trop grand";
-        }
-};
-
-template <typename T, int n>
-class PrimitiveFrame : public Frame<int,n> { // ":public... to inherit"
-    private:
-        int val_max{};
-    public:
-        // Constructeur par défaut
-        PrimitiveFrame() = default;
-        // Constructeur avec val_max (part 3 q d)
-        PrimitiveFrame(int max_val) : val_max(max_val) {
-        }
-
-        PrimitiveFrame(const Frame<int,n> &frame) {
-            for (auto f : frame) {
-                turn_primitive(f);
-                this->add(f);
-            }
-        }
-
-        void add(std::vector<int> v) {
-            for (int &i : v) {
-                if (std::abs(i) > val_max) {
-                    throw AddPrimitiveFrameException();
-                }
-            }
-
-            turn_primitive(v);
-            Frame<int, n>::add(v);
-        }
-};
-
 class AddFrameException : public std::exception {
     public:
         virtual const char* what() const noexcept {
             return "Erreur : La taille du vecteur ne correspond pas à la dimension n";
-        }
-};
-
-template <typename T, int n>
-class MinimalFrame : public Frame<T,n> { // ":public... to inherit"
-    public:
-        // Constructeur par défaut
-        MinimalFrame() = default;
-
-        MinimalFrame(const Frame<T,n> &f) {
-            // On parcourt les vecteurs de la frame
-            for (const auto &f_v : f.get_vectors()) {
-                bool already_here = false;
-                // On regarde si il existe dans notre frame (this)
-                for (const auto &this_v : this->get_vectors()) {
-                    // Si oui, on l'ajoute pas
-                    if (this_v == f_v) {
-                        already_here = true;
-                        break;
-                    }
-                }
-                // Si non, on l'ajoute
-                if (!already_here)
-                    this->add(f_v);
-            }
         }
 };
 
@@ -159,45 +79,160 @@ class Frame {
             return result;
         }
 
-        // Calcul qualitée
         double quality_measure(const std::vector<T> &v) const {
             assert(v.size() == n);
             assert(!vectors.empty());
 
-            double max =-1.0;
+            if constexpr (std::is_same<T, bool>::value) {
 
-            for (const auto &d : vectors) {
-                double norm_v{};
-                double quality{};
-                double prod_scalaire{};
-                double norm_d{};
+                //le cas particulier des booléens (ils sont relous)
+                double max = 0.0;
 
-                for (int i{} ; i < n ; i++) {
-                    prod_scalaire +=static_cast<double>(v[i]) * d[i];
-                    norm_d +=static_cast<double>(d[i])*d[i];
-                    norm_v +=static_cast<double>(v[i])*v[i];
+                for (const auto &d : vectors) {
+
+                    int intersection = 0;
+                    int union_size = 0;
+
+                    for (int i = 0; i < n; i++) {
+
+                        if (d[i] && v[i]) {
+                            intersection++;
+                        }
+
+                        if (d[i] || v[i]) {
+                            union_size++;
+                        }
+                    }
+
+                    assert(union_size > 0);
+
+                    double quality = static_cast<double>(intersection) / union_size;
+
+                    if (quality > max) {
+                        max = quality;
+                    }
                 }
-                norm_d = std::sqrt(norm_d);
-                norm_v =std::sqrt(norm_v);
+
+                return max;
+            }
+
+            else {
+
+                //le ptit cas général
+                double norm_v{};
+
+                for (const auto &x : v) {
+                    norm_v += static_cast<double>(x) * x;
+                }
 
                 assert(norm_v > 0.0);
 
-                quality = prod_scalaire /(norm_d * norm_v);
+                norm_v = std::sqrt(norm_v);
 
-                if (quality > max) {
-                    max = quality;
+                double max = -1.0;
+
+                for (const auto &d : vectors) {
+
+                    double prod_scalaire{};
+                    double norm_d{};
+
+                    for (int i = 0; i < n; i++) {
+
+                        prod_scalaire += static_cast<double>(v[i]) * d[i];
+
+                        norm_d += static_cast<double>(d[i]) * d[i];
+                    }
+
+                    norm_d = std::sqrt(norm_d);
+
+                    double quality = prod_scalaire / (norm_d * norm_v);
+
+                    if (quality > max) {
+                        max = quality;
+                    }
                 }
+
+                return max;
             }
-            return max;
+        } 
+};
+
+// Part 3, Q a
+void turn_primitive(std::vector<int>& v) {
+    if (!v.empty()) {
+        // On cherche le PGCD global
+        int gcd{};
+        for (int x : v) {
+            gcd = std::gcd(gcd, x);
+        }
+        // Une fois qu'on a le PGCD, on divise tous les nombres par la PGCD
+        if (gcd > 1) {
+            for (int &x : v) {
+                x /= gcd;
+            }
+        }
+    }
+    return;
+}
+
+class AddPrimitiveFrameException : public std::exception {
+    public:
+        virtual const char* what() const noexcept {
+            return "Erreur : Une des valeurs du vecteur est trop grand";
+        }
+};
+
+template <typename T, int n>
+class PrimitiveFrame : public Frame<int,n> { // ":public... to inherit"
+    private:
+        int val_max{};
+    public:
+        // Constructeur par défaut
+        PrimitiveFrame() = default;
+        // Constructeur avec val_max (part 3 q d)
+        PrimitiveFrame(int max_val) : val_max(max_val) {
         }
 
-        // Calcul qualitée normalisée
-        double quality_measure_normalized(const std::vector<T> &v) const {
-            assert(!vectors.empty());
+        PrimitiveFrame(const Frame<int,n> &frame) {
+            for (auto f : frame) {
+                turn_primitive(f);
+                this->add(f);
+            }
+        }
 
-            double q = quality_measure(v);
-            q /= static_cast<double>(vectors.size());
+        void add(std::vector<int> v) {
+            for (int &i : v) {
+                if (std::abs(i) > val_max) {
+                    throw AddPrimitiveFrameException();
+                }
+            }
 
-            return q;
+            turn_primitive(v);
+            Frame<int, n>::add(v);
+        }
+};
+
+template <typename T, int n>
+class MinimalFrame : public Frame<T,n> { // ":public... to inherit"
+    public:
+        // Constructeur par défaut
+        MinimalFrame() = default;
+
+        MinimalFrame(const Frame<T,n> &f) {
+            // On parcourt les vecteurs de la frame
+            for (const auto &f_v : f.get_vectors()) {
+                bool already_here = false;
+                // On regarde si il existe dans notre frame (this)
+                for (const auto &this_v : this->get_vectors()) {
+                    // Si oui, on l'ajoute pas
+                    if (this_v == f_v) {
+                        already_here = true;
+                        break;
+                    }
+                }
+                // Si non, on l'ajoute
+                if (!already_here)
+                    this->add(f_v);
+            }
         }
 };
