@@ -38,7 +38,7 @@ class Frame {
         }
 
         // Getter pour permettre à minimalFrame de lire les vecteurs
-        std::vector<std::vector<T>>& get_vectors() const {
+        std::vector<std::vector<T>> get_vectors() const {
             return vectors;
         }
 
@@ -84,77 +84,64 @@ class Frame {
             assert(!vectors.empty());
 
             if constexpr (std::is_same<T, bool>::value) {
-
                 //le cas particulier des booléens (ils sont relous)
                 double max = 0.0;
-
                 for (const auto &d : vectors) {
-
                     int intersection = 0;
                     int union_size = 0;
-
                     for (int i = 0; i < n; i++) {
-
                         if (d[i] && v[i]) {
                             intersection++;
                         }
-
                         if (d[i] || v[i]) {
                             union_size++;
                         }
                     }
-
                     assert(union_size > 0);
-
                     double quality = static_cast<double>(intersection) / union_size;
-
                     if (quality > max) {
                         max = quality;
                     }
                 }
-
                 return max;
             }
 
             else {
-
                 //le ptit cas général
                 double norm_v{};
-
                 for (const auto &x : v) {
                     norm_v += static_cast<double>(x) * x;
                 }
 
                 assert(norm_v > 0.0);
-
                 norm_v = std::sqrt(norm_v);
 
                 double max = -1.0;
-
                 for (const auto &d : vectors) {
-
                     double prod_scalaire{};
                     double norm_d{};
-
                     for (int i = 0; i < n; i++) {
-
                         prod_scalaire += static_cast<double>(v[i]) * d[i];
-
                         norm_d += static_cast<double>(d[i]) * d[i];
                     }
-
                     norm_d = std::sqrt(norm_d);
-
                     double quality = prod_scalaire / (norm_d * norm_v);
-
                     if (quality > max) {
                         max = quality;
                     }
                 }
-
                 return max;
             }
-        } 
+        }
+
+        double quality_measure_normalized(const std::vector<T> &v) const {
+            assert(vectors.size() > 0);
+            
+            double q = quality_measure(v);
+            q /= static_cast<double>(vectors.size());
+
+            return q;
+        }
 };
 
 // Part 3, Q a
